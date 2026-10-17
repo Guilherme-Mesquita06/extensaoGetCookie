@@ -2,14 +2,14 @@
   "manifest_version": 3,
   "name": "AI Platform PoC — JSON Demo",
   "version": "1.0.0",
-  "description": "PoC local para extrair cookies reais da sessão.",
-  "permissions": [
-    "clipboardWrite",
-    "cookies"
-  ],
+  "description": "PoC local para extrair cookies usando o padrão Strategy.",
+  "permissions": ["clipboardWrite", "cookies"],
   "host_permissions": [
     "https://chatgpt.com/*",
-    "https://chat.openai.com/*"
+    "https://chat.openai.com/*",
+    "https://grok.com/*",
+    "https://x.com/*",
+    "https://flow.google.com/*"
   ],
   "background": {
     "scripts": ["background.js"]
@@ -18,7 +18,10 @@
     {
       "matches": [
         "https://chatgpt.com/*",
-        "https://chat.openai.com/*"
+        "https://chat.openai.com/*",
+        "https://grok.com/*",
+        "https://x.com/*",
+        "https://flow.google.com/*"
       ],
       "js": [
         "theme.js",

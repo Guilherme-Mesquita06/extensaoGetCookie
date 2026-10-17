@@ -1,112 +1,181 @@
 (async () => {
-  const platformName = 'ChatGPT';
+  // ==============================================================================
+  // 1. GESTOR DE ESTRATÉGIAS (Design Pattern: Strategy)
+  // ==============================================================================
+  const PlatformManager = {
+    strategies: [],
+    register(strategy) { this.strategies.push(strategy); },
+    getStrategy(hostname) { return this.strategies.find(s => s.matches(hostname)); }
+  };
+
+  // ==============================================================================
+  // 2. MÓDULOS ISOLADOS DAS PLATAFORMAS (Desacoplamento)
+  // ==============================================================================
+
+  // --- ESTRATÉGIA DO GOOGLE FLOW ---
+  PlatformManager.register({
+    name: 'Google Flow',
+    matches: (hostname) => ['flow.google.com'].includes(hostname),
+    extract: async (rawCookies) => {
+      const cookieMap = {};
+      rawCookies.split(';').forEach(pair => {
+        const parts = pair.trim().split('=');
+        if (parts.length >= 2) cookieMap[parts[0].trim()] = parts.slice(1).join('=').trim();
+      });
+
+      // Lista consolidada de cookies essenciais da conta Google
+      const targetNames = [
+        "__Secure-1PAPISID", "__Secure-1PSID", "__Secure-1PSIDCC", "__Secure-1PSIDTS",
+        "__Secure-3PAPISID", "__Secure-3PSID", "__Secure-3PSIDCC", "__Secure-3PSIDTS",
+        "__Secure-BUCKET", "__Secure-OSID", "APISID", "HSID", "NID", "OSID", "SAPISID", "SID", "SIDCC", "SSID"
+      ];
+
+      const formattedPairs = targetNames
+        .filter(name => cookieMap[name] !== undefined)
+        .map(name => `${name}=${cookieMap[name]}`);
+
+      return {
+        "accountKey": "conta-piloto-01",
+        "label": "Flow 01 (Ultra)",
+        "toolId": "flow",
+        "planType": "ultra",
+        "accessToken": "",
+        "cookies": formattedPairs.join('; '),
+        "chatgptAccountId": "1" // Incluído conforme solicitado no seu modelo exato
+      };
+    }
+  });
+
+  // --- ESTRATÉGIA DO GROK ---
+  PlatformManager.register({
+    name: 'Grok',
+    matches: (hostname) => ['grok.com', 'x.com'].includes(hostname),
+    extract: async (rawCookies) => {
+      const cookieMap = {};
+      rawCookies.split(';').forEach(pair => {
+        const parts = pair.trim().split('=');
+        if (parts.length >= 2) cookieMap[parts[0].trim()] = parts.slice(1).join('=').trim();
+      });
+
+      const targetNames = [
+        "__cf_bm", "__cuid", "__stripe_mid", "__stripe_sid", 
+        "cf_clearance", "grok_device_id", "i18nextLng", 
+        "sso", "sso-rw", "team-id", "x-userid"
+      ];
+
+      const formattedPairs = targetNames
+        .filter(name => cookieMap[name] !== undefined)
+        .map(name => `${name}=${cookieMap[name]}`);
+
+      const extractedPlanType = cookieMap['plan_type'] || cookieMap['grok_plan'] || cookieMap['tier'] || "supergrok";
+
+      return {
+        "accountKey": "conta-piloto-01",
+        "label": "Grok 02 (SuperGrok)",
+        "toolId": "grok",
+        "planType": extractedPlanType,
+        "cookies": formattedPairs.join('; ')
+      };
+    }
+  });
+
+  // --- ESTRATÉGIA DO CHATGPT ---
+  PlatformManager.register({
+    name: 'ChatGPT',
+    matches: (hostname) => ['chatgpt.com', 'chat.openai.com'].includes(hostname),
+    extract: async (rawCookies) => {
+      const cookieMap = {};
+      rawCookies.split(';').forEach(pair => {
+        const parts = pair.trim().split('=');
+        if (parts.length >= 2) cookieMap[parts[0].trim()] = parts.slice(1).join('=').trim();
+      });
+
+      const targetNames = ["__Secure-next-auth.session-token.0", "__Secure-next-auth.session-token.1", "cf_clearance", "oai-did", "__cf_bm"];
+      const formattedPairs = targetNames
+        .filter(name => cookieMap[name] !== undefined)
+        .map(name => `${name}=${cookieMap[name]}`);
+
+      let accessToken = "";
+      let expiresAt = null;
+      let chatgptAccountId = "";
+      let planType = "free";
+
+      function findValueByKey(obj, targetKey) {
+        if (!obj || typeof obj !== 'object') return null;
+        if (obj[targetKey]) return obj[targetKey];
+        for (const key of Object.keys(obj)) {
+          if (typeof obj[key] === 'object') {
+            const found = findValueByKey(obj[key], targetKey);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+
+      try {
+        const sessionRes = await fetch('/api/auth/session');
+        if (sessionRes.ok) {
+          const s = await sessionRes.json();
+          accessToken = s.accessToken || "";
+          expiresAt = s.expires ? new Date(s.expires).getTime() : null;
+
+          const accountRes = await fetch('/backend-api/accounts/check/v4-2023-04-27', {
+            headers: { Authorization: 'Bearer ' + accessToken }
+          });
+          
+          if (accountRes.ok) {
+            const a = await accountRes.json();
+            chatgptAccountId = findValueByKey(a, 'account_id') || findValueByKey(a, 'id') || "";
+            const extractedPlan = findValueByKey(a, 'plan_type');
+            if (extractedPlan) planType = extractedPlan;
+          }
+        }
+      } catch (e) {
+        console.error('[AI Platform PoC] Falha na API do ChatGPT:', e);
+      }
+
+      return {
+        "accountKey": "conta-piloto-01",
+        "toolId": "chatgpt",
+        "chatgptAccountId": chatgptAccountId,
+        "planType": planType,
+        "accessToken": accessToken,
+        "cookies": formattedPairs.join('; '),
+        "userAgent": navigator.userAgent,
+        "expiresAt": expiresAt
+      };
+    }
+  });
+
+  // ==============================================================================
+  // 3. ORQUESTRADOR PRINCIPAL
+  // ==============================================================================
   if (!document.documentElement) return;
-  if (window.__aiPlatformPoCAlreadyShown) return;
-  window.__aiPlatformPoCAlreadyShown = true;
-
+  
   const api = window.AiPlatformPoC;
+  if (!api || !api.showModal) return;
 
-  // Busca os cookies crus do background.js
+  const hostname = window.location.hostname.replace('www.', '');
+  const platform = PlatformManager.getStrategy(hostname);
+  
+  if (!platform) return; // Se não for ChatGPT, Grok ou Flow, não faz nada
+
+  // Pede os cookies brutos (incluindo .google.com) ao background
   const getCookies = () => new Promise(resolve => {
     chrome.runtime.sendMessage({ action: "GET_SESSION_COOKIES" }, (response) => {
       resolve(response && response.cookies ? response.cookies : "");
     });
   });
 
-  const rawCookies = await getCookies();
-
-  // Função para filtrar e extrair apenas os cookies de sessão no formato limpo desejado
- function formatSessionCookies(cookieString) {
-  if (!cookieString) return "";
-  
-  // Apenas os cookies vitais para a sessão
-  const targetNames = [
-    "__Secure-next-auth.session-token.0",
-    "__Secure-next-auth.session-token.1",
-    "cf_clearance",
-    "oai-did",
-    "__cf_bm"
-  ];
-
-  const cookieMap = {};
-  cookieString.split(';').forEach(pair => {
-    const parts = pair.trim().split('=');
-    if (parts.length >= 2) {
-      const name = parts[0].trim();
-      const value = parts.slice(1).join('=').trim();
-      cookieMap[name] = value;
-    }
-  });
-
-  const formattedPairs = [];
-  targetNames.forEach(name => {
-    if (cookieMap[name] !== undefined) {
-      formattedPairs.push(`${name}=${cookieMap[name]}`);
-    }
-  });
-
-  return formattedPairs.join('; ');
-}
-
-  const cleanedCookies = formatSessionCookies(rawCookies);
-
-  let accessToken = "";
-  let expiresAt = null;
-  let chatgptAccountId = "";
-
-  // Função auxiliar para procurar por uma chave específica em qualquer nível do objeto JSON
-  function findValueByKey(obj, targetKey) {
-    if (!obj || typeof obj !== 'object') return null;
-    if (obj[targetKey]) return obj[targetKey];
-    
-    for (const key of Object.keys(obj)) {
-      if (typeof obj[key] === 'object') {
-        const found = findValueByKey(obj[key], targetKey);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
   try {
-    const sessionRes = await fetch('/api/auth/session');
-    if (sessionRes.ok) {
-      const s = await sessionRes.json();
-      accessToken = s.accessToken || "";
-      expiresAt = s.expires ? new Date(s.expires).getTime() : null;
+    const rawCookies = await getCookies();
+    const sessionData = await platform.extract(rawCookies);
+    
+    const payload = api.buildPayload(sessionData);
+    const jsonText = api.stringifyPayload(payload);
 
-      const accountRes = await fetch('/backend-api/accounts/check/v4-2023-04-27', {
-        headers: { Authorization: 'Bearer ' + accessToken }
-      });
-      
-      if (accountRes.ok) {
-        const a = await accountRes.json();
-        // Extrai dinamicamente o account_id da resposta da API
-        chatgptAccountId = findValueByKey(a, 'account_id') || findValueByKey(a, 'id') || "";
-      }
-    }
-  } catch (e) {
-    console.error('[AI Platform PoC] Falha ao extrair dados da API:', e);
+    api.showModal({ platformName: platform.name, payload, jsonText });
+  } catch (error) {
+    console.error('[AI Platform PoC] Erro:', error);
   }
-
-  const sessionData = {
-    "_comment": "Arquivo exportado com cookies limpos, token e accountId dinâmico da sessão atual.",
-    "accountKey": "conta-piloto-01",
-    "toolId": "chatgpt",
-    "chatgptAccountId": chatgptAccountId, // Preenchido dinamicamente via "account_id"
-    "planType": "free",
-    "accessToken": accessToken,
-    "cookies": cleanedCookies, // Cookies formatados e limpos
-    "userAgent": navigator.userAgent,
-    "expiresAt": expiresAt
-  };
-
-  const payload = api.buildPayload(sessionData);
-  const jsonText = api.stringifyPayload(payload);
-
-  if (!api.validatePayload(payload)) {
-    console.error('[AI Platform PoC] Estrutura inválida.', payload);
-  }
-
-  api.showModal({ platformName, payload, jsonText });
 })();
