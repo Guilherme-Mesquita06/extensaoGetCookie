@@ -41,7 +41,7 @@
         "planType": "ultra",
         "accessToken": "",
         "cookies": formattedPairs.join('; '),
-        "chatgptAccountId": "1" // Incluído conforme solicitado no seu modelo exato
+        "chatgptAccountId": "1" 
       };
     }
   });

@@ -23,7 +23,7 @@
       textarea.style.opacity = '0';
       
       document.body.appendChild(textarea);
-      textarea.select();
+      textarea.select();  
 
       try {
         const successful = document.execCommand('copy');
