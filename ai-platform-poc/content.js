@@ -13,6 +13,7 @@
   // ==============================================================================
 
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
+  // --- ESTRATÉGIA DO GOOGLE FLOW ---
   PlatformManager.register({
     name: 'Google Flow',
     matches: (hostname) => ['flow.google.com'].includes(hostname),
@@ -23,25 +24,39 @@
         if (parts.length >= 2) cookieMap[parts[0].trim()] = parts.slice(1).join('=').trim();
       });
 
-      // Lista consolidada de cookies essenciais da conta Google
+      // Lista exata de cookies MESTRES e ROTATIVOS exigida pelo documento
       const targetNames = [
-        "__Secure-1PAPISID", "__Secure-1PSID", "__Secure-1PSIDCC", "__Secure-1PSIDTS",
-        "__Secure-3PAPISID", "__Secure-3PSID", "__Secure-3PSIDCC", "__Secure-3PSIDTS",
-        "__Secure-BUCKET", "__Secure-OSID", "APISID", "HSID", "NID", "OSID", "SAPISID", "SID", "SIDCC", "SSID"
+        "SID", "HSID", "SSID", "APISID", "SAPISID",
+        "__Secure-1PAPISID", "__Secure-3PAPISID",
+        "__Secure-1PSID", "__Secure-3PSID",
+        "__Secure-1PSIDTS", "__Secure-3PSIDTS",
+        "SIDCC", "__Secure-1PSIDCC", "__Secure-3PSIDCC",
+        "__Secure-BUCKET", "__Secure-OSID", "_GRECAPTCHA", 
+        "AEC", "NID", "OSID", "OTZ", "S", "SEARCH_SAMESITE"
       ];
 
       const formattedPairs = targetNames
         .filter(name => cookieMap[name] !== undefined)
         .map(name => `${name}=${cookieMap[name]}`);
 
+      // LÓGICA DO PASSO 2.1: Identificar o "Slot" da Conta Google
+      // Exemplo: https://flow.google.com/u/2/ -> Extrai o "2"
+      let userSlot = "0"; // Valor padrão seguro
+      const slotMatch = window.location.pathname.match(/\/u\/(\d+)/);
+      if (slotMatch && slotMatch[1]) {
+        userSlot = slotMatch[1];
+      }
+
+      // Retorna exatamente a estrutura JSON exigida no Passo 3.3
       return {
         "accountKey": "conta-piloto-01",
         "label": "Flow 01 (Ultra)",
         "toolId": "flow",
         "planType": "ultra",
-        "accessToken": "",
+        "chatgptAccountId": userSlot, // Extraído dinamicamente da URL
+        "accessToken": "",            // Obrigatório ser vazio
         "cookies": formattedPairs.join('; '),
-        "chatgptAccountId": "1" 
+        "userAgent": navigator.userAgent // Adicionado conforme Passo 3.2
       };
     }
   });
