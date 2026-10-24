@@ -9,10 +9,11 @@
     "https://chat.openai.com/*",
     "https://grok.com/*",
     "https://x.com/*",
+    "*://*.google.com/*",
     "https://flow.google.com/*"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -21,6 +22,7 @@
         "https://chat.openai.com/*",
         "https://grok.com/*",
         "https://x.com/*",
+        "*://*.google.com/*",
         "https://flow.google.com/*"
       ],
       "js": [
