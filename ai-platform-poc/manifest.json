@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Platform PoC \u2014 JSON Demo",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "PoC local para extrair cookies usando o padr\u00e3o Strategy.",
   "permissions": [
     "clipboardWrite",
@@ -13,11 +13,14 @@
     "https://grok.com/*",
     "https://x.com/*",
     "https://flow.google.com/*",
-    "https://*.google.com/*"
+    "https://*.google.com/*",
+    "https://vyral.com.br/*",
+    "https://app.vyral.com.br/*"
   ],
   "background": {
     "scripts": [
       "gemini.js",
+      "vyral.js",
       "background.js"
     ]
   },
@@ -29,7 +32,8 @@
         "https://grok.com/*",
         "https://x.com/*",
         "https://flow.google.com/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://app.vyral.com.br/*"
       ],
       "js": [
         "theme.js",
@@ -37,6 +41,7 @@
         "export.js",
         "modal.js",
         "gemini.js",
+        "vyral.js",
         "content.js"
       ],
       "run_at": "document_idle"

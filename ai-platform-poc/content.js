@@ -22,6 +22,18 @@
     }
   });
 
+  PlatformManager.register({
+    name: 'Vyral IA',
+    matches: hostname => hostname === 'app.vyral.com.br',
+    extract: async (_rawCookies, response) => {
+      const key = window.prompt('Chave exata da conta Vyral cadastrada no portal:');
+      if (key === null) throw new Error('Exportação cancelada.');
+      let storage;
+      try { storage = window.localStorage; } catch {}
+      return window.AiPlatformPoC.Vyral.payload(response, window.location.href, navigator.userAgent, key, storage);
+    }
+  });
+
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   PlatformManager.register({
@@ -206,6 +218,6 @@
     api.showModal({ platformName: platform.name, payload, jsonText });
   } catch (error) {
     console.error('[AI Platform PoC] Erro:', error.message);
-    if (hostname === 'gemini.google.com') window.alert(error.message);
+    if (['gemini.google.com', 'app.vyral.com.br'].includes(hostname)) window.alert(error.message);
   }
 })();

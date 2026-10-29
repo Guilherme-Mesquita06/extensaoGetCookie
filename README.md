@@ -1,13 +1,23 @@
-# Sessão Google Gemini: extensão → backend → proxy
+# Extensão de sessões: ChatGPT, Grok, Flow, Gemini e Vyral
 
 ## Download
 
-- [Firefox — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-gemini-firefox.zip)
-- [Chrome — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-gemini-chrome.zip)
+- [Firefox — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.2.0-firefox.zip)
+- [Chrome — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.2.0-chrome.zip)
 
 Se o repositório for privado, entre no GitHub com uma conta autorizada antes de baixar.
 Descompacte o ZIP; ele contém o manifest.json na raiz. No Firefox, selecione esse arquivo em about:debugging.
 
+
+## Vyral IA
+
+Abra https://app.vyral.com.br autenticado, recarregue a página, informe a chave da conta cadastrada no portal e clique em **Exportar .json**. A extensão 1.2.0 inclui todas as ferramentas anteriores.
+
+Vyral exige `dashboardToken` ou JWT de API; `userSession` sozinho não basta. A extensão coleta os cookies via API (incluindo HttpOnly) e confere a validade temporal do JWT. Somente se o cookie de token estiver ausente, tenta as chaves conhecidas dashboardToken/accessToken/access_token no localStorage da mesma origem. JSON de exemplo: [vyral-session.example.json](vyral-session.example.json), com placeholders que devem ser substituídos pela exportação real. O resultado é `vyral-session.json`; trate-o como uma senha.
+
+A versão do backend correspondente precisa ser publicada. Nenhum arquivo é enviado automaticamente para o servidor. JWT exp é uma checagem de tempo, não uma validação de assinatura ou de login upstream.
+
+## Google Gemini
 
 1. Cadastre a ferramenta com slug `gemini`, associe ao plano e crie uma conta ativa com vagas.
 2. Instale/recarregue a extensão atualizada. Firefox: `about:debugging#/runtime/this-firefox` → Carregar extensão temporária → escolha o manifest.json da pasta descompactada. Aceite acesso aos cookies Google.
