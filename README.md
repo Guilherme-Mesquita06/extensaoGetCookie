@@ -1,13 +1,21 @@
-# Extensão de sessões: ChatGPT, Grok, Flow, Gemini e Vyral
+# Extensão de sessões: ChatGPT, Grok, Flow, Gemini, Vyral e Leonardo.Ai
 
 ## Download
 
-- [Firefox — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.2.0-firefox.zip)
-- [Chrome — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.2.0-chrome.zip)
+- [Firefox — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.3.0-firefox.zip)
+- [Chrome — baixar ZIP](https://github.com/arsenallucrativo-devs/extensaoGetCookie/raw/refs/heads/main/downloads/extensaoGetCookie-v1.3.0-chrome.zip)
 
 Se o repositório for privado, entre no GitHub com uma conta autorizada antes de baixar.
 Descompacte o ZIP; ele contém o manifest.json na raiz. No Firefox, selecione esse arquivo em about:debugging.
 
+
+## Leonardo.Ai
+
+A versão 1.3.0 mantém todas as ferramentas anteriores. Abra https://app.leonardo.ai autenticado, recarregue, informe a chave da conta do portal e clique em **Exportar .json** para baixar `leonardo-session.json`.
+
+A extensão preserva cookies Better Auth/NextAuth, inclusive divididos em partes, e tenta obter JWT nos endpoints de sessão da própria origem. Não exige JWT para cookies opacos. `_vcrcs`/cf_clearance sozinhos não bastam; cookies incompletos e JWT vencido provocam erro. Exemplo: [leonardo-session.example.json](leonardo-session.example.json).
+
+Publique o backend correspondente antes do upload. A coleta fica local e não envia o arquivo automaticamente. Sessão real pode depender de verificações humanas e IP; nunca compartilhe o JSON.
 
 ## Vyral IA
 

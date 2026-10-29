@@ -34,6 +34,19 @@
     }
   });
 
+  PlatformManager.register({
+    name: 'Leonardo.Ai',
+    matches: hostname => hostname === 'app.leonardo.ai',
+    extract: async (_rawCookies, response) => {
+      const key = window.prompt('Chave exata da conta Leonardo cadastrada no portal:');
+      if (key === null) throw new Error('Exportação cancelada.');
+      const token = await window.AiPlatformPoC.Leonardo.fetchSession(fetch);
+      response = await getCookies(); // Capture cookie rotations performed by the auth endpoint.
+      return window.AiPlatformPoC.Leonardo.payload(
+        response, window.location.href, navigator.userAgent, key, token);
+    }
+  });
+
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   PlatformManager.register({
@@ -218,6 +231,6 @@
     api.showModal({ platformName: platform.name, payload, jsonText });
   } catch (error) {
     console.error('[AI Platform PoC] Erro:', error.message);
-    if (['gemini.google.com', 'app.vyral.com.br'].includes(hostname)) window.alert(error.message);
+    if (['gemini.google.com', 'app.vyral.com.br', 'app.leonardo.ai'].includes(hostname)) window.alert(error.message);
   }
 })();
