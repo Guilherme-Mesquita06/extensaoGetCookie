@@ -3,6 +3,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const urlObj = new URL(sender.tab.url);
     const hostname = urlObj.hostname;
 
+    if (hostname === 'gemini.google.com') {
+      const query = {url: sender.tab.url};
+      if (sender.tab.cookieStoreId) query.storeId = sender.tab.cookieStoreId;
+      chrome.cookies.getAll(query, (cookies) => {
+        if (chrome.runtime.lastError) {
+          sendResponse({error: 'Não foi possível ler cookies. Confira as permissões da extensão.'});
+          return;
+        }
+        try {
+          sendResponse(globalThis.AiPlatformPoC.Gemini.collect(cookies, sender.tab.url));
+        } catch (error) {
+          sendResponse({error: error.message});
+        }
+      });
+      return true;
+    }
+
     let query = {};
 
     // Mapeia o domínio raiz para contornar a limitação de leitura de cookies do Firefox

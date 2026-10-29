@@ -12,6 +12,16 @@
   // 2. MÓDULOS ISOLADOS DAS PLATAFORMAS (Desacoplamento)
   // ==============================================================================
 
+  PlatformManager.register({
+    name: 'Google Gemini',
+    matches: hostname => hostname === 'gemini.google.com',
+    extract: async (_rawCookies, response) => {
+      const key = window.prompt('Chave exata da conta Gemini cadastrada no portal:');
+      if (key === null) throw new Error('Exportação cancelada.');
+      return window.AiPlatformPoC.Gemini.payload(response, window.location.href, navigator.userAgent, key);
+    }
+  });
+
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   // --- ESTRATÉGIA DO GOOGLE FLOW ---
   PlatformManager.register({
@@ -176,21 +186,26 @@
   if (!platform) return; // Se não for ChatGPT, Grok ou Flow, não faz nada
 
   // Pede os cookies brutos (incluindo .google.com) ao background
-  const getCookies = () => new Promise(resolve => {
+  const getCookies = () => new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({ action: "GET_SESSION_COOKIES" }, (response) => {
-      resolve(response && response.cookies ? response.cookies : "");
+      if (chrome.runtime.lastError || response?.error) {
+        reject(new Error(response?.error || 'Não foi possível comunicar com a extensão.'));
+        return;
+      }
+      resolve(response || {});
     });
   });
 
   try {
-    const rawCookies = await getCookies();
-    const sessionData = await platform.extract(rawCookies);
+    const response = await getCookies();
+    const sessionData = await platform.extract(response.cookies || "", response);
     
     const payload = api.buildPayload(sessionData);
     const jsonText = api.stringifyPayload(payload);
 
     api.showModal({ platformName: platform.name, payload, jsonText });
   } catch (error) {
-    console.error('[AI Platform PoC] Erro:', error);
+    console.error('[AI Platform PoC] Erro:', error.message);
+    if (hostname === 'gemini.google.com') window.alert(error.message);
   }
 })();

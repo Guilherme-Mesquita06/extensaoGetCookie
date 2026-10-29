@@ -1,0 +1,10 @@
+{
+  "accountKey": "conta-gemini-01",
+  "label": "Google Gemini 01",
+  "toolId": "gemini",
+  "planType": "advanced",
+  "chatgptAccountId": "0",
+  "accessToken": "",
+  "cookies": "__Secure-1PSID=SUBSTITUIR; __Secure-1PSIDTS=SUBSTITUIR; __Secure-3PSID=SUBSTITUIR; __Secure-3PSIDTS=SUBSTITUIR; SAPISID=SUBSTITUIR; __Secure-1PAPISID=SUBSTITUIR; __Secure-3PAPISID=SUBSTITUIR; SID=SUBSTITUIR; HSID=SUBSTITUIR; SSID=SUBSTITUIR; SIDCC=SUBSTITUIR; __Secure-1PSIDCC=SUBSTITUIR; __Secure-3PSIDCC=SUBSTITUIR",
+  "userAgent": "SUBSTITUIR_PELO_USER_AGENT_DO_NAVEGADOR"
+}
