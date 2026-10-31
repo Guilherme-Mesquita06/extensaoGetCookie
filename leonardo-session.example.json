@@ -1,0 +1,10 @@
+{
+  "accountKey": "conta-leonardo-01",
+  "label": "Leonardo.Ai 01",
+  "toolId": "leonardo",
+  "planType": "maestro",
+  "chatgptAccountId": "",
+  "accessToken": "",
+  "cookies": "__Secure-next-auth.session-token=SUBSTITUIR_PELO_COOKIE_DE_SESSAO; _vcrcs=SUBSTITUIR_SE_EXISTIR",
+  "userAgent": "SUBSTITUIR_PELO_USER_AGENT_DO_NAVEGADOR"
+}

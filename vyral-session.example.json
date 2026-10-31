@@ -1,0 +1,10 @@
+{
+  "accountKey": "conta-vyral-01",
+  "label": "Vyral IA 01",
+  "toolId": "vyral",
+  "planType": "pro",
+  "chatgptAccountId": "",
+  "accessToken": "",
+  "cookies": "dashboardToken=SUBSTITUIR_PELO_DASHBOARD_TOKEN; userSession=SUBSTITUIR_PELO_USER_SESSION",
+  "userAgent": "SUBSTITUIR_PELO_USER_AGENT_DO_NAVEGADOR"
+}

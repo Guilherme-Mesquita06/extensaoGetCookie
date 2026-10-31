@@ -3,6 +3,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const urlObj = new URL(sender.tab.url);
     const hostname = urlObj.hostname;
 
+    if (['gemini.google.com', 'app.vyral.com.br', 'app.leonardo.ai'].includes(hostname)) {
+      const query = {url: sender.tab.url};
+      if (sender.tab.cookieStoreId) query.storeId = sender.tab.cookieStoreId;
+      chrome.cookies.getAll(query, (cookies) => {
+        if (chrome.runtime.lastError) {
+          sendResponse({error: 'Não foi possível ler cookies. Confira as permissões da extensão.'});
+          return;
+        }
+        try {
+          const collector = {
+            'gemini.google.com': globalThis.AiPlatformPoC.Gemini,
+            'app.vyral.com.br': globalThis.AiPlatformPoC.Vyral,
+            'app.leonardo.ai': globalThis.AiPlatformPoC.Leonardo
+          }[hostname];
+          sendResponse(collector.collect(cookies, sender.tab.url));
+        } catch (error) {
+          sendResponse({error: error.message});
+        }
+      });
+      return true;
+    }
+
     let query = {};
 
     // Mapeia o domínio raiz para contornar a limitação de leitura de cookies do Firefox
