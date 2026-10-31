@@ -53,15 +53,21 @@
       copyBtn.innerText = '📋 Copiar JSON';
       styleButton(copyBtn, '#007bff'); 
       
-      copyBtn.onclick = () => {
-        textArea.select();
+    copyBtn.onclick = async () => {
         try {
-          document.execCommand('copy');
+          // 1. Tenta a API moderna nativa (Chrome, Edge, Brave, Opera)
+          await navigator.clipboard.writeText(jsonText);
           copyBtn.innerText = '✔ Copiado!';
           copyBtn.style.backgroundColor = '#28a745';
         } catch (err) {
-          copyBtn.innerText = '❌ Erro';
+          // 2. Fallback seguro caso o navegador bloqueie a API principal (Firefox)
+          textArea.select();
+          document.execCommand('copy');
+          copyBtn.innerText = '✔ Copiado!';
+          copyBtn.style.backgroundColor = '#28a745';
         }
+        
+        // Retorna o botão ao estado original após 2.5 segundos
         setTimeout(() => {
           copyBtn.innerText = '📋 Copiar JSON';
           copyBtn.style.backgroundColor = '#007bff';
