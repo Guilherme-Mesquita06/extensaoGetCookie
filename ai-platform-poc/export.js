@@ -53,6 +53,8 @@
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   }
 
-  window.AiPlatformPoC.copyJson = copyJson;
-  window.AiPlatformPoC.exportJson = exportJson;
+    const payload = api.buildPayload(sessionData);
+    const jsonText = api.stringifyPayload(payload);
+
+api.showModal({ platformName: platform.name, payload, jsonText }); 
 })();

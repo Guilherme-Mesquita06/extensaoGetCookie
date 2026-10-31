@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AI Platform PoC \u2014 JSON Demo",
+  "name": "AI Platform PoC — JSON Demo",
   "version": "1.3.0",
-  "description": "PoC local para extrair cookies usando o padr\u00e3o Strategy.",
+  "description": "PoC local para extrair cookies usando o padrão Strategy.",
   "permissions": [
     "clipboardWrite",
     "cookies"
@@ -17,7 +17,12 @@
     "https://vyral.com.br/*",
     "https://app.vyral.com.br/*",
     "https://leonardo.ai/*",
-    "https://app.leonardo.ai/*"
+    "https://app.leonardo.ai/*",
+    "https://*.pollo.ai/*",
+    "https://magnific.com/*",
+    "https://*.magnific.com/*",
+    "https://digen.ai/*",
+    "https://*.digen.ai/*"
   ],
   "background": {
     "scripts": [
@@ -37,7 +42,12 @@
         "https://flow.google.com/*",
         "https://gemini.google.com/*",
         "https://app.vyral.com.br/*",
-        "https://app.leonardo.ai/*"
+        "https://app.leonardo.ai/*",
+        "https://*.pollo.ai/*",
+        "https://magnific.com/*",
+        "https://*.magnific.com/*",
+        "https://digen.ai/*",
+        "https://*.digen.ai/*"
       ],
       "js": [
         "theme.js",

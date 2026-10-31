@@ -3,47 +3,59 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const urlObj = new URL(sender.tab.url);
     const hostname = urlObj.hostname;
 
-    if (['gemini.google.com', 'app.vyral.com.br', 'app.leonardo.ai'].includes(hostname)) {
-      const query = {url: sender.tab.url};
+    // --- BLOCO 1: Módulos Nativos ---
+    if (['gemini.google.com', 'app.vyral.com.br'].includes(hostname)) {
+      const query = { url: sender.tab.url };
       if (sender.tab.cookieStoreId) query.storeId = sender.tab.cookieStoreId;
+      
       chrome.cookies.getAll(query, (cookies) => {
         if (chrome.runtime.lastError) {
-          sendResponse({error: 'Não foi possível ler cookies. Confira as permissões da extensão.'});
+          sendResponse({ error: 'Não foi possível ler cookies.' });
           return;
         }
         try {
-          const collector = {
-            'gemini.google.com': globalThis.AiPlatformPoC.Gemini,
-            'app.vyral.com.br': globalThis.AiPlatformPoC.Vyral,
-            'app.leonardo.ai': globalThis.AiPlatformPoC.Leonardo
+          const collector = { 
+            'gemini.google.com': globalThis.AiPlatformPoC?.Gemini,
+            'app.vyral.com.br': globalThis.AiPlatformPoC?.Vyral 
           }[hostname];
-          sendResponse(collector.collect(cookies, sender.tab.url));
-        } catch (error) {
-          sendResponse({error: error.message});
+
+          if (collector && typeof collector.collect === 'function') {
+            sendResponse(collector.collect(cookies, sender.tab.url));
+          } else {
+            const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+            sendResponse({ cookies: cookieString });
+          }
+        } catch (error) { 
+          sendResponse({ error: error.message }); 
         }
       });
-      return true;
+      return true; 
     }
 
+    // --- BLOCO 2: Mapeamento de Domínio Raiz ---
     let query = {};
 
-    // Mapeia o domínio raiz para contornar a limitação de leitura de cookies do Firefox
-    if (hostname.includes('google.com')) {
-      query = { domain: "google.com" }; // Puxa TODOS os cookies da Google (raiz e subdomínios)
-    } else if (hostname.includes('x.com')) {
-      query = { domain: "x.com" };
-    } else if (hostname.includes('grok.com')) {
-      query = { domain: "grok.com" };
-    } else if (hostname.includes('chatgpt.com')) {
-      query = { domain: "chatgpt.com" };
-    } else if (hostname.includes('openai.com')) {
-      query = { domain: "openai.com" };
-    } else {
-      query = { url: sender.tab.url }; // Fallback de segurança
+    if (hostname.includes('google.com')) { query = { domain: "google.com" }; 
+    } else if (hostname.includes('x.com')) { query = { domain: "x.com" };
+    } else if (hostname.includes('grok.com')) { query = { domain: "grok.com" };
+    } else if (hostname.includes('chatgpt.com')) { query = { domain: "chatgpt.com" };
+    } else if (hostname.includes('openai.com')) { query = { domain: "openai.com" };
+    } else if (hostname.includes('leonardo.ai')) { query = { domain: "leonardo.ai" };
+    } else if (hostname.includes('higgsfield.ai')) { query = { domain: "higgsfield.ai" };
+    } else if (hostname.includes('pollo.ai')) { query = { domain: "pollo.ai" };
+    } else if (hostname.includes('digen')) { query = { domain: "digen.ai" };
+    } else if (hostname.includes('magnific.com')) { query = { domain: "magnific.com" }; // <--- ADICIONADO MAGNIFIC
+    } else { query = { url: sender.tab.url }; }
+
+    if (sender.tab.cookieStoreId) {
+      query.storeId = sender.tab.cookieStoreId;
     }
 
-    // Busca os cookies baseados no filtro de domínio
     chrome.cookies.getAll(query, (cookies) => {
+      if (chrome.runtime.lastError) {
+         sendResponse({ cookies: "" });
+         return;
+      }
       const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
       sendResponse({ cookies: cookieString });
     });

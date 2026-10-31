@@ -4,11 +4,11 @@
   function decode(value) {
     try { return decodeURIComponent(value); } catch { return value; }
   }
-  function tokenExpiry(token) {
-    if (!/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) return null;
-    try {
-      const segment = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const claims = JSON.parse(atob(segment.padEnd(Math.ceil(segment.length / 4) * 4, '=')));
+function tokenExpiry(token) {
+  if (!/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) return null;
+  try {
+    const segment = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(atob(segment.padEnd(Math.ceil(segment.length / 4) * 4, '=')));
       if (claims.exp === undefined) return null;
       if (!Number.isSafeInteger(claims.exp) || claims.exp <= 0) throw new Error();
       return claims.exp * 1000;
